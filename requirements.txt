@@ -1,7 +1,10 @@
-numpy
-pandas
-librosa
-scikit-learn
-seaborn
-matplotlib
-tensorflow
+numpy==1.24.4
+pandas==1.5.3
+scipy>=1.9.3
+scikit-learn==1.2.2
+joblib>=1.2.0
+threadpoolctl>=3.1.0
+librosa==0.9.2
+seaborn==0.12.2
+matplotlib==3.6.3
+tensorflow==2.14.0
