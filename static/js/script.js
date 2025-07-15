@@ -18,7 +18,7 @@ function evaluateAudio() {
     const formData = new FormData();
     formData.append("audio", file);
 
-    fetch("http://localhost:5000/predict", { // Replace with your actual Flask endpoint
+    fetch("http://localhost:5000/predict", { 
         method: "POST",
         body: formData
     })
