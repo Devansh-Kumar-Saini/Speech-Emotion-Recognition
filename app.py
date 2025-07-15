@@ -9,11 +9,11 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app)
 
-# Load model and labels
+# Model
 from tensorflow.keras.models import load_model
-model = load_model("model.h5")  # Or .keras if you used that format
+model = load_model("model.h5")  
 
-# Compile if needed (especially for prediction)
+
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 emotion_labels = ['angry', 'calm', 'disgust', 'fearful', 'happy', 'neutral', 'sad', 'surprised']
@@ -55,11 +55,6 @@ def about():
 @app.route('/technical')
 def technical():
     return render_template('technical.html')
-
-
-
-
-
 
 @app.route('/predict', methods=['POST'])
 def predict():
