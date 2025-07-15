@@ -6,12 +6,13 @@
     <title>EmoVoice - Technical</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         .comparison-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -22,7 +23,7 @@
         }
 
         .modal-content {
-            background: white;
+            background-color: #fff;
             border-radius: 20px;
             padding: 30px;
             width: 90%;
@@ -41,8 +42,8 @@
 
         #comparisonImage {
             width: 100%;
-            border-radius: 10px;
             max-height: 90vh;
+            border-radius: 10px;
             object-fit: contain;
         }
     </style>
@@ -59,57 +60,130 @@
         </div>
     </nav>
 
-    <!-- Technical Hero Section -->
-    <section class="technical-hero" style="background: url('{{ url_for('static', filename='IMAGES/EMOTION FACES.jpg') }}') center/cover no-repeat;">
-        <div class="hero-overlay" style="position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.7);"></div>
-        <div class="hero-content" style="position: relative; z-index: 1; text-align: center; color: white;">
+    <!-- HERO SECTION -->
+    <section class="technical-hero" style="background: url('{{ url_for('static', filename='IMAGES/EMOTION FACES.jpg') }}') center/cover no-repeat; position: relative;">
+        <div class="hero-overlay" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7);"></div>
+        <div class="hero-content" style="position: relative; z-index: 1; text-align: center; color: #fff;">
             <h1>Technical Architecture</h1>
             <p>Discover the technology powering our emotion recognition system</p>
         </div>
     </section>
 
-    <!-- ML Models Section -->
-    <section class="tech-section ml-models" style="padding: 60px 5%;">
-        <div class="section-content">
-            <h2>Machine Learning Models</h2>
-            <div class="models-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
-                <!-- Traditional ML -->
-                <div class="model-category" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">
-                        Traditional ML
-                        <button class="comparison-btn" onclick="showComparison('traditional')">View Comparison</button>
-                    </h3>
-                    <div class="model-cards">
-                        <div class="model-card"><h4>KNN</h4><p>K-Nearest Neighbors for pattern recognition</p></div>
-                        <div class="model-card"><h4>SVM</h4><p>Support Vector Machine for classification</p></div>
-                        <div class="model-card"><h4>Decision Tree</h4><p>Tree-based model for feature analysis</p></div>
+    <main class="technical-content">
+        <!-- SYSTEM OVERVIEW -->
+        <section class="tech-section overview">
+            <div class="section-content">
+                <h2>System Overview</h2>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="tech-icon">🎯</div>
+                        <h3>High Accuracy</h3>
+                        <p>Advanced ML models achieving over 94% accuracy in emotion detection.</p>
                     </div>
-                </div>
-
-                <!-- Deep Learning -->
-                <div class="model-category" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">
-                        Deep Learning
-                        <button class="comparison-btn" onclick="showComparison('deep')">View Results</button>
-                    </h3>
-                    <div class="model-cards">
-                        <div class="model-card"><h4>CNN</h4><p>Convolutional Neural Network for audio features</p></div>
-                        <div class="model-card"><h4>Bi-LSTM</h4><p>Bidirectional LSTM for sequential data modeling</p></div>
+                    <div class="tech-card">
+                        <div class="tech-icon">⚡</div>
+                        <h3>Real-time Processing</h3>
+                        <p>Optimized for rapid analysis with minimal latency.</p>
+                    </div>
+                    <div class="tech-card">
+                        <div class="tech-icon">🔄</div>
+                        <h3>Continuous Learning</h3>
+                        <p>Our models evolve and improve with every interaction.</p>
+                    </div>
+                    <div class="tech-card">
+                        <div class="tech-icon">📱</div>
+                        <h3>User-Friendly Interface</h3>
+                        <p>Intuitive design accessible to everyone — from beginner to expert.</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Comparison Modal for Images -->
+        <!-- DATASET SECTION -->
+        <section class="tech-section dataset">
+            <div class="section-content">
+                <h2>Training Data</h2>
+                <div class="dataset-content">
+                    <div class="dataset-info">
+                        <h3>Comprehensive Dataset</h3>
+                        <p>Our training utilizes 2000+ labeled audio samples, categorized across a wide emotional spectrum:</p>
+                        <ul class="emotion-list">
+                            <li><span class="emotion-icon">😊</span><span class="emotion-name">Happy</span><span class="emotion-count">500+ samples</span></li>
+                            <li><span class="emotion-icon">😢</span><span class="emotion-name">Sad</span><span class="emotion-count">500+ samples</span></li>
+                            <li><span class="emotion-icon">😠</span><span class="emotion-name">Angry</span><span class="emotion-count">500+ samples</span></li>
+                            <li><span class="emotion-icon">😐</span><span class="emotion-name">Neutral</span><span class="emotion-count">500+ samples</span></li>
+                            <li><span class="emotion-icon">😨</span><span class="emotion-name">Fearful</span><span class="emotion-count">400+ samples</span></li>
+                            <li><span class="emotion-icon">🤢</span><span class="emotion-name">Disgust</span><span class="emotion-count">400+ samples</span></li>
+                            <li><span class="emotion-icon">😮</span><span class="emotion-name">Surprised</span><span class="emotion-count">400+ samples</span></li>
+                            <li><span class="emotion-icon">😫</span><span class="emotion-name">Awful</span><span class="emotion-count">400+ samples</span></li>
+                        </ul>
+                    </div>
+                    <div class="dataset-visual">
+                        <img src="{{ url_for('static', filename='IMAGES/Screenshot 2025-04-21 210048.png') }}" alt="Dataset Visualization" class="dataset-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MACHINE LEARNING MODELS -->
+        <section class="tech-section ml-models" style="padding: 60px 5%;">
+            <div class="section-content">
+                <h2>Machine Learning Models</h2>
+                <div class="models-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
+                    
+                    <!-- Traditional ML - Vertical layout -->
+                    <div class="model-category" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);">
+                        <h3 style="display: flex; justify-content: space-between; align-items: center;">
+                            Traditional ML
+                            <button class="comparison-btn" onclick="showComparison('traditional')">View Comparison</button>
+                        </h3>
+                        <div class="model-cards" style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+                            <div class="model-card">
+                                <h4>KNN</h4>
+                                <p>K-Nearest Neighbors for pattern recognition</p>
+                            </div>
+                            <div class="model-card">
+                                <h4>SVM</h4>
+                                <p>Support Vector Machine for robust classification</p>
+                            </div>
+                            <div class="model-card">
+                                <h4>Decision Tree</h4>
+                                <p>Hierarchical modeling for feature importance</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deep Learning - Keep horizontal grid layout -->
+                    <div class="model-category" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);">
+                        <h3 style="display: flex; justify-content: space-between; align-items: center;">
+                            Deep Learning
+                            <button class="comparison-btn" onclick="showComparison('deep')">View Results</button>
+                        </h3>
+                        <div class="model-cards" style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+                            <div class="model-card">
+                                <h4>CNN</h4>
+                                <p>Convolutional Neural Networks for spectrogram analysis</p>
+                            </div>
+                            <div class="model-card">
+                                <h4>Bi-LSTM</h4>
+                                <p>Bidirectional LSTMs for temporal sequence modeling</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: Model Comparison -->
     <div class="comparison-modal" id="imageModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeImageModal()">&times;</span>
-            <img id="comparisonImage" src="" alt="Comparison Image">
+            <img id="comparisonImage" src="" alt="Model Comparison">
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer style="text-align: center; padding: 40px 20px; background: #f9fafb; margin-top: 80px;">
         <div class="footer-content">
             <div class="footer-links" style="margin-bottom: 15px;">
@@ -128,11 +202,9 @@
             const modal = document.getElementById('imageModal');
             const image = document.getElementById('comparisonImage');
 
-            if (type === 'traditional') {
-                image.src = "{{ url_for('static', filename='IMAGES/Traditional.png') }}";
-            } else if (type === 'deep') {
-                image.src = "{{ url_for('static', filename='IMAGES/Deep.png') }}";
-            }
+            image.src = type === 'traditional'
+                ? "{{ url_for('static', filename='IMAGES/Traditional.png') }}"
+                : "{{ url_for('static', filename='IMAGES/Deep.png') }}";
 
             modal.classList.add('active');
         }
@@ -141,7 +213,7 @@
             document.getElementById('imageModal').classList.remove('active');
         }
 
-        window.addEventListener('click', function (event) {
+        window.addEventListener('click', (event) => {
             const modal = document.getElementById('imageModal');
             if (event.target === modal) {
                 modal.classList.remove('active');
