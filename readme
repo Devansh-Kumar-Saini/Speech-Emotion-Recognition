@@ -1,5 +1,5 @@
 🎙️ Speech Emotion Recognition (SER) 
-- This project is a complete end-to-end Speech Emotion Recognition system that classifies    human emotions from audio recordings using machine learning. The system includes:
+- This project is a complete end-to-end Speech Emotion Recognition system that classifies human emotions from audio recordings using machine learning. The system includes:
     1. A trained deep learning model to recognize emotions from audio
     2. A Flask-based web application with endpoints for uploading audio and receiving predictions
     3. A frontend interface to interact with the system
