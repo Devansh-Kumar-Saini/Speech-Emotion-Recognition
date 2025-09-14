@@ -58,26 +58,65 @@ def technical():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    print("Received request to /predict endpoint")  # Debug log
+    
+    # Check if the post request has the file part
     if 'audio' not in request.files:
+        print("No 'audio' in request.files")  # Debug log
         return jsonify({'error': 'No audio file provided'}), 400
-
+        
     file = request.files['audio']
-    filename = secure_filename(file.filename)
-    filepath = os.path.join('uploads', filename)
-    os.makedirs('uploads', exist_ok=True)
-    file.save(filepath)
-
-    try:
-        features = extract_features(filepath)
-        prediction = model.predict(features)
-        predicted_label = emotion_labels[np.argmax(prediction)]
-        confidence = float(np.max(prediction))
-        os.remove(filepath)
-        return jsonify({'emotion': predicted_label, 'confidence': confidence})
-    except Exception as e:
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        return jsonify({'error': str(e)}), 500
+    print(f"Received file: {file.filename}")  # Debug log
+    
+    # If user does not select file, browser also
+    # submit an empty part without filename
+    if file.filename == '':
+        print("No selected file")  # Debug log
+        return jsonify({'error': 'No selected file'}), 400
+        
+    if file:
+        try:
+            # Create uploads directory if it doesn't exist
+            upload_dir = 'uploads'
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Save the file temporarily
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(upload_dir, filename)
+            file.save(filepath)
+            print(f"File saved to {filepath}")  # Debug log
+            
+            # Process the audio file
+            print("Extracting features...")  # Debug log
+            features = extract_features(filepath)
+            print("Making prediction...")  # Debug log
+            prediction = model.predict(features)
+            predicted_label = emotion_labels[np.argmax(prediction)]
+            confidence = float(np.max(prediction))
+            
+            # Clean up the temporary file
+            if os.path.exists(filepath):
+                os.remove(filepath)
+                print(f"Temporary file {filepath} removed")  # Debug log
+                
+            print(f"Prediction successful: {predicted_label} (confidence: {confidence})")  # Debug log
+            return jsonify({
+                'emotion': predicted_label, 
+                'confidence': confidence
+            })
+            
+        except Exception as e:
+            print(f"Error during prediction: {str(e)}")  # Debug log
+            # Clean up in case of error
+            if 'filepath' in locals() and os.path.exists(filepath):
+                os.remove(filepath)
+                print(f"Removed temporary file after error: {filepath}")  # Debug log
+            return jsonify({
+                'error': 'Error processing audio file',
+                'details': str(e)
+            }), 500
+    
+    return jsonify({'error': 'Invalid file'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True) 
