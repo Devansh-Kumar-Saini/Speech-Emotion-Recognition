@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const confidenceBar = document.getElementById('confidenceFill');
     const confidenceText = document.getElementById('confidenceText');
 
+    // Make sure all required elements exist
+    if (!uploadForm || !audioFileInput || !uploadStatus || !resultSection || 
+        !emotionText || !confidenceBar || !confidenceText) {
+        console.error('Required elements not found in the DOM');
+        return;
+    }
+
     // Handle form submission
     uploadForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -27,20 +34,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('Sending request to /predict endpoint...');
         
+        // Create a new AbortController for the fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
         // Use the correct endpoint for prediction
-        fetch('/predict', {
+        // Get the current hostname and protocol
+        const baseUrl = window.location.origin;
+        const predictUrl = `${baseUrl}/predict`;
+        
+        console.log('Sending request to:', predictUrl);
+        
+        fetch(predictUrl, {
             method: 'POST',
             body: formData,
-            // No need for Content-Type header when using FormData
-            // The browser will set it automatically with the correct boundary
+            signal: controller.signal,
             credentials: 'same-origin',  // Include cookies if needed
-            // Add a timeout to handle unresponsive servers
-            signal: AbortSignal.timeout(30000)  // 30 seconds timeout
+            headers: {
+                'Accept': 'application/json'
+            }
         })
         .then(async response => {
-            console.log('Response status:', response.status);
+            clearTimeout(timeoutId);
             const responseText = await response.text();
-            console.log('Raw response:', responseText);
+            console.log('Response status:', response.status);
+            console.log('Response text:', responseText);
             
             if (!response.ok) {
                 // Try to parse the error response as JSON, fallback to text
@@ -54,11 +72,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // If we got here, the response is ok, parse as JSON
-            return JSON.parse(responseText);
+            try {
+                return JSON.parse(responseText);
+            } catch (e) {
+                throw new Error('Invalid JSON response from server');
+            }
         })
         .then(data => {
-            if (data && data.error) {
+            if (!data) {
+                throw new Error('No data received from server');
+            }
+            
+            if (data.error) {
                 throw new Error(data.error);
+            }
+            
+            if (!data.emotion || data.confidence === undefined) {
+                throw new Error('Invalid response format from server');
             }
             
             // Update UI with results
@@ -72,6 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
             updateStatus('Analysis complete!', 'success');
         })
         .catch(error => {
+            clearTimeout(timeoutId);
+            
             console.error('Error details:', {
                 name: error.name,
                 message: error.message,
@@ -82,8 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (error.name === 'AbortError') {
                 errorMessage = 'Request timed out. The server is taking too long to respond.';
-            } else if (error.message.includes('NetworkError')) {
-                errorMessage = 'Network error. Please check your internet connection.';
+            } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+                errorMessage = 'Cannot connect to the server. Please check your internet connection and try again.';
             } else if (error.message) {
                 errorMessage = error.message;
             }
@@ -100,8 +132,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update status message
     function updateStatus(message, type = 'info') {
+        if (!uploadStatus) return;
+        
         uploadStatus.textContent = message;
         uploadStatus.className = 'recording-status';
-        uploadStatus.classList.add(type);
+        
+        // Remove any existing status classes
+        uploadStatus.classList.remove('error', 'success', 'processing');
+        
+        // Add the new status class if provided
+        if (type) {
+            uploadStatus.classList.add(type);
+        }
     }
 });

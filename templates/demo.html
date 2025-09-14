@@ -525,49 +525,6 @@
         }
     </style>
 
-    <script>
-        const uploadForm = document.getElementById('uploadForm');
-        const audioFileInput = document.getElementById('audioFile');
-        const uploadStatus = document.getElementById('uploadStatus');
-        const resultSection = document.querySelector('.result-section');
-        const emotionText = document.getElementById('emotionText');
-        const confidenceFill = document.getElementById('confidenceFill');
-        const confidenceText = document.getElementById('confidenceText');
-
-        uploadForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const file = audioFileInput.files[0];
-            if (!file) {
-                uploadStatus.textContent = 'Please select an audio file.';
-                return;
-            }
-            uploadStatus.textContent = 'Uploading and analyzing...';
-            const formData = new FormData();
-            formData.append('audio', file);
-            try {
-                const response = await fetch('http://127.0.0.1:5000/predict', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    resultSection.style.display = 'block';
-                    emotionText.textContent = data.emotion;
-                    const confidence = Math.round(data.confidence * 100);
-                    confidenceFill.style.width = `${confidence}%`;
-                    confidenceText.textContent = `${confidence}%`;
-                    uploadStatus.textContent = 'Analysis complete';
-                } else {
-                    uploadStatus.textContent = 'Error analyzing audio';
-                    console.error('Server error:', data.error);
-                }
-            } catch (err) {
-                uploadStatus.textContent = 'Error connecting to server';
-                console.error('Error sending audio:', err);
-            }
-        });
-
-    </script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script> 
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
