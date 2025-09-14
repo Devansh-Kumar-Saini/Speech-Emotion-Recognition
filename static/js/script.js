@@ -38,22 +38,43 @@ document.addEventListener('DOMContentLoaded', function() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-        // Use the correct endpoint for prediction
         // Get the current hostname and protocol
         const baseUrl = window.location.origin;
         const predictUrl = `${baseUrl}/predict`;
         
         console.log('Sending request to:', predictUrl);
         
-        fetch(predictUrl, {
+        // Update UI to show processing
+        const uploadStatus = document.getElementById('uploadStatus');
+        uploadStatus.textContent = 'Processing your audio...';
+        uploadStatus.style.color = '#4a90e2';
+        
+        // Show loading animation
+        document.querySelector('.audio-visualizer').style.display = 'flex';
+        
+        // Set a timeout for the fetch request
+        const TIMEOUT_DURATION = 60000; // 60 seconds
+        
+        // Create a promise that rejects after timeout
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => {
+                reject(new Error('Request timed out. The server is taking too long to respond.'));
+            }, TIMEOUT_DURATION);
+        });
+        
+        // Make the fetch request
+        const fetchPromise = fetch(predictUrl, {
             method: 'POST',
             body: formData,
             signal: controller.signal,
-            credentials: 'same-origin',  // Include cookies if needed
+            credentials: 'same-origin',
             headers: {
                 'Accept': 'application/json'
             }
-        })
+        });
+        
+        // Race between fetch and timeout
+        return Promise.race([fetchPromise, timeoutPromise.then(() => { throw new Error('timeout'); })])
         .then(async response => {
             clearTimeout(timeoutId);
             const responseText = await response.text();

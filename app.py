@@ -58,65 +58,101 @@ def technical():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    print("Received request to /predict endpoint")  # Debug log
+    print("\n=== New Prediction Request ===")
+    print(f"Content-Type: {request.content_type}")
+    print(f"Files received: {request.files}")
     
     # Check if the post request has the file part
     if 'audio' not in request.files:
-        print("No 'audio' in request.files")  # Debug log
-        return jsonify({'error': 'No audio file provided'}), 400
+        error_msg = "No 'audio' in request.files"
+        print(f"Error: {error_msg}")
+        return jsonify({'error': error_msg}), 400
         
     file = request.files['audio']
-    print(f"Received file: {file.filename}")  # Debug log
+    print(f"Processing file: {file.filename}")
     
     # If user does not select file, browser also
     # submit an empty part without filename
     if file.filename == '':
-        print("No selected file")  # Debug log
-        return jsonify({'error': 'No selected file'}), 400
+        error_msg = "No file selected"
+        print(f"Error: {error_msg}")
+        return jsonify({'error': error_msg}), 400
+    
+    # Check file size (max 10MB)
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    file.seek(0)  # Reset file pointer
+    
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    if file_length > MAX_FILE_SIZE:
+        error_msg = f"File too large. Max size is {MAX_FILE_SIZE/1024/1024}MB"
+        print(f"Error: {error_msg}")
+        return jsonify({'error': error_msg}), 400
+    
+    # Create uploads directory if it doesn't exist
+    upload_dir = 'uploads'
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # Save the file temporarily
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(upload_dir, filename)
+    
+    try:
+        print(f"Saving file to {filepath}...")
+        file.save(filepath)
+        print(f"File saved. Size: {os.path.getsize(filepath)} bytes")
         
-    if file:
+        # Set a timeout for feature extraction
+        print("Starting feature extraction...")
+        start_time = time.time()
+        
+        # Process the audio file with timeout
         try:
-            # Create uploads directory if it doesn't exist
-            upload_dir = 'uploads'
-            os.makedirs(upload_dir, exist_ok=True)
-            
-            # Save the file temporarily
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(upload_dir, filename)
-            file.save(filepath)
-            print(f"File saved to {filepath}")  # Debug log
-            
-            # Process the audio file
-            print("Extracting features...")  # Debug log
             features = extract_features(filepath)
-            print("Making prediction...")  # Debug log
-            prediction = model.predict(features)
+            print(f"Feature extraction completed in {time.time() - start_time:.2f} seconds")
+        except Exception as e:
+            error_msg = f"Error during feature extraction: {str(e)}"
+            print(error_msg)
+            return jsonify({'error': 'Error processing audio features', 'details': str(e)}), 500
+        
+        # Make prediction with timeout
+        print("Making prediction...")
+        start_time = time.time()
+        
+        try:
+            prediction = model.predict(features, verbose=1)
             predicted_label = emotion_labels[np.argmax(prediction)]
             confidence = float(np.max(prediction))
+            print(f"Prediction completed in {time.time() - start_time:.2f} seconds")
+            print(f"Result: {predicted_label} (confidence: {confidence:.2f})")
             
-            # Clean up the temporary file
-            if os.path.exists(filepath):
-                os.remove(filepath)
-                print(f"Temporary file {filepath} removed")  # Debug log
-                
-            print(f"Prediction successful: {predicted_label} (confidence: {confidence})")  # Debug log
-            return jsonify({
+            result = {
                 'emotion': predicted_label, 
                 'confidence': confidence
-            })
+            }
+            print(f"Returning result: {result}")
+            return jsonify(result)
             
         except Exception as e:
-            print(f"Error during prediction: {str(e)}")  # Debug log
-            # Clean up in case of error
-            if 'filepath' in locals() and os.path.exists(filepath):
+            error_msg = f"Error during prediction: {str(e)}"
+            print(error_msg)
+            return jsonify({'error': 'Error making prediction', 'details': str(e)}), 500
+            
+    except Exception as e:
+        error_msg = f"Error processing file: {str(e)}"
+        print(error_msg)
+        return jsonify({'error': 'Error processing file', 'details': str(e)}), 500
+        
+    finally:
+        # Clean up the temporary file
+        if os.path.exists(filepath):
+            try:
                 os.remove(filepath)
-                print(f"Removed temporary file after error: {filepath}")  # Debug log
-            return jsonify({
-                'error': 'Error processing audio file',
-                'details': str(e)
-            }), 500
+                print(f"Temporary file removed: {filepath}")
+            except Exception as e:
+                print(f"Warning: Could not remove temporary file {filepath}: {str(e)}")
     
-    return jsonify({'error': 'Invalid file'}), 400
+    return jsonify({'error': 'Unexpected error occurred'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True) 
